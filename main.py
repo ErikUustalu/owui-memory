@@ -147,7 +147,16 @@ async def update_memories():
     )
 
     ai = genai.Client(api_key=GEMINI_API_KEY)
-    response = await ai.aio.models.generate_content(model=GEMINI_MODEL, contents=prompt, config=aiconfig)
+
+    for i in range(40):
+      try:
+        response = await ai.aio.models.generate_content(model=GEMINI_MODEL, contents=prompt, config=aiconfig)
+        break
+      except Exception as e:
+        logger.warning(f"Memory update generation failed (attempt {i+1}/40): {e}")
+        logger.warning("Trying again in 15s...")
+        await asyncio.sleep(15)
+
     results = json.loads(response.text)
 
     for creation in results["create"]:
@@ -185,7 +194,16 @@ async def update_memories():
     )
 
     ai = genai.Client(api_key=GEMINI_API_KEY)
-    response = await ai.aio.models.generate_content(model=GEMINI_MODEL, contents=prompt, config=aiconfig)
+
+    for i in range(40):
+      try:
+        response = await ai.aio.models.generate_content(model=GEMINI_MODEL, contents=prompt, config=aiconfig)
+        break
+      except Exception as e:
+        logger.warning(f"Summary generation failed (attempt {i+1}/40): {e}")
+        logger.warning("Trying again in 15s...")
+        await asyncio.sleep(15)
+
     summary = response.text
     summary_file = open("data/summary.txt", "w")
     summary_file.write(summary)
