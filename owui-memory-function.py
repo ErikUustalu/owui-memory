@@ -31,7 +31,10 @@ class Filter:
         )
 
         if first_run:
-            response = requests.get(self.valves.url)
+            try:
+                response = requests.get(self.valves.url)
+            except:
+                response = "Failed to fetch summary. Use tools to get memories when needed."
 
             body["messages"].insert(
                 1,
