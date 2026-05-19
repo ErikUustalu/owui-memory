@@ -129,7 +129,7 @@ async def update_memories():
 
     if not chats:
       logger.info("No recent chats. Skipping memory update.")
-      return
+      continue
 
     chatstext = ""
 
