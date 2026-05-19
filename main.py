@@ -77,22 +77,25 @@ If nothing to delete, return "delete": [].
 """
 
 DEFAULT_SUMMARY_PROMPT = """
-You are a personal context summarizer. You will receive a list of memories about a user. Your job is to write a dense, well-organized summary of the most important information that an AI assistant would need to know to interact with this person effectively.
+You are a personal context summarizer. You receive a list of memories about Erik. Write a dense, concise summary that an AI assistant needs to interact with him effectively.
 
-Structure the summary in natural prose paragraphs, not bullet points. Group related information together logically. Prioritize:
-1. Who the user is (background, location, occupation, life situation)
-2. What they're actively working on right now
-3. Their technical stack and environment
-4. Interests and hobbies
-5. Communication style and preferences
+Structure as natural prose paragraphs (no bullet points, no headings). Group related info logically.
+
+Prioritize in this order:
+1. Communication style, preferences, and personality — affects every response
+2. Active projects and what he's currently working on
+3. Technical environment (tools, stack, setup)
+4. Who he is (background, age, location — keep brief)
+5. Interests and hobbies (only if they frequently affect conversation)
 
 Rules:
-- Target length: ~1024 tokens (roughly 750 words). Do not go significantly over or under.
-- Write in third person ("The user...", "They...")
-- Be dense and specific — every sentence should carry real information, no filler
-- If there are many memories, prioritize recurring themes and recent/active things over old or one-off facts
-- Do not invent anything not present in the memories
-- Do not output anything except the summary — no headers, no intro line, no "Here is a summary:"
+- Target length: ~500 tokens (~350 words). Hard limit: 700 tokens.
+- Write in third person using "Erik" (not "the user")
+- Every sentence must carry real information — zero filler
+- Heavily favor recent/active information over static biographical facts
+- Exclude: technical specs (voltages, models, versions), one-off facts, temporary setup details, conversational history, anything that won't change how the AI responds
+- Do not invent anything not present in memories
+- Output ONLY the summary text — no markdown, no headers, no "Here is a summary:", no trailing sentences
 """
 
 dotenv.load_dotenv()
