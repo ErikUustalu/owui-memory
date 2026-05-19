@@ -33,6 +33,7 @@ class Filter:
         if first_run:
             try:
                 response = requests.get(self.valves.url)
+                response = response.text
             except:
                 response = "Failed to fetch summary. Use tools to get memories when needed."
 
@@ -40,7 +41,7 @@ class Filter:
                 1,
                 {
                     "role": "system",
-                    "content": f"[Memories Summary (Use tools to get all memories)]\n{response.text}",
+                    "content": f"[Memories Summary (Use tools to get all memories)]\n{response}",
                 },
             )
 
