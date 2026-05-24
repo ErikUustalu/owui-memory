@@ -139,8 +139,11 @@ async def update_memories():
       messages = content.chat["history"]["messages"]
 
       for message in messages.values():
-        role = message["role"]
-        content = message["content"]
+        try:
+          role = message["role"]
+          content = message["content"]
+        except:
+          continue
 
         if role == "assistant":
           content = re.sub(r"<details[^>]*>.*?</details>", "", content, flags=re.DOTALL)
