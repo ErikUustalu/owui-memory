@@ -1,0 +1,13 @@
+services:
+  owui-memory:
+    image: ghcr.io/erikuustalu/owui-memory:latest
+    ports:
+      - "8120:8080" # Can be removed if summary generation not used
+    restart: unless-stopped
+    volumes:
+      - ./memory_data:/app/data
+    environment:
+      - OWUI_TOKEN=your-open-webui-api-token
+      - OWUI_URL=your-open-webui-api-url # Example http://localhost:3000/api
+      - UPDATE_INTERVAL=3600 # Memory generation interval in seconds
+      - GEMINI_API_KEY=your-gemini-api-key
