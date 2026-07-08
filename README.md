@@ -25,3 +25,5 @@ A custom memory manager for Open Webui
    ```
    docker compose up -d
    ```
+## License
+MIT
