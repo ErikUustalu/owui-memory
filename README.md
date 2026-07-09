@@ -25,5 +25,12 @@ A custom memory manager for Open Webui
    ```
    docker compose up -d
    ```
+
+### Summary generation
+1. Set up the docker compose with the previous instructions
+2. Create an Open Webui function with the contents of [owui-memory-function.py](owui-memory-function.py)
+3. Set the server URL valve
+4. Apply the function to the wanted models
+
 ## License
 MIT
