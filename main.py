@@ -116,6 +116,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemma-4-31b-it")
 MAX_MEMORIES = int(os.getenv("MAX_MEMORIES", 200))
 SUMMARY_PROMPT = os.getenv("SUMMARY_PROMPT", DEFAULT_SUMMARY_PROMPT)
+IGNORE_CHATS_INCL = os.getenv("IGNORE_CHATS_INCL", "[TR]")
 
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -142,8 +143,11 @@ async def update_memories():
     chatstext = ""
 
     for chat in chats:
-      chatstext += f"\n\n\n{chat.title}:"
       content = await owui.chats.get(chat.id)
+      if IGNORE_CHATS_INCL in content:
+        continue
+
+      chatstext += f"\n\n\n{chat.title}:"
       messages = content.chat["history"]["messages"]
 
       for message in messages.values():
