@@ -97,7 +97,7 @@ Prioritize in this order:
 5. Interests and hobbies (only if they frequently affect conversation)
 
 Rules:
-- Target length: ~500 tokens (~350 words). Hard limit: 700 tokens.
+- Target length: ~200 tokens (~150 words). Hard limit: 500 tokens.
 - Write in third person using "Erik" (not "the user")
 - Every sentence must carry real information — zero filler
 - Heavily favor recent/active information over static biographical facts
