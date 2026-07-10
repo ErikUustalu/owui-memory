@@ -11,9 +11,6 @@ A custom memory manager for Open Webui
 - **Conflict resolving:** If something the user says in a chat conflicts with an existing memory, the memory will get deleted and replaced with a new one including the new correct info
 - **Summary generation:** Generates a summary of the memories that gets injected to the Open Webui prompt
 
-> [!NOTE]
-> The summary generation feature won't receive updates since the automatic memory injection of Open Webui 10.0 does the same thing better so I don't use the summary generation anymore
-
 ## Quick Setup
 ### Docker compose
 1. Copy the example [docker-compose.yaml](docker-compose.yaml)
