@@ -220,7 +220,7 @@ async def main():
   if not OWUI_TOKEN or not OWUI_URL:
     logger.error("Open WebUI credentials missing")
     return
-  elif not (GEMINI_API_KEY or (OPENAI_API_KEY and OPENAI_URL)):
+  elif not (GEMINI_API_KEY or (OPENAI_API_KEY and OPENAI_URL and OPENAI_MODEL)):
     logger.error("AI API credentials missing")
     return
 
