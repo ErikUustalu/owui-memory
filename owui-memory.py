@@ -10,7 +10,7 @@ from owui_client import OpenWebUI
 from owui_client.models.memories import AddMemoryForm
 from google import genai
 from google.genai import types
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, BadRequestError
 from datetime import datetime
 from aiohttp import web
 
@@ -35,6 +35,75 @@ logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s -
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+class Ai():
+  def __init__(self, thinking=True, retry_attempts=5, retry_delay=15):
+    self.thinking = thinking
+    self.retry_attempts = retry_attempts
+    self.retry_delay = retry_delay
+    if OPENAI_URL:
+      self.client = AsyncOpenAI(base_url=OPENAI_URL, api_key=OPENAI_API_KEY)
+    else:
+      self.client = genai.Client(api_key=GEMINI_API_KEY)
+
+  async def generate(self, prompt):
+    if OPENAI_URL:
+      if self.thinking:
+        reasoning = "high"
+      else:
+        reasoning = "none"
+
+      for i in range(self.retry_attempts):
+        try:
+          response = await self.client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            reasoning_effort=reasoning
+          )
+          return response.choices[0].message.content
+        except BadRequestError as e:
+          logger.warning(f"Generation failed. Trying without reasoning")
+          try:
+            response = await self.client.chat.completions.create(
+              model=OPENAI_MODEL,
+              messages=[{"role": "user", "content": prompt}],
+            )
+            self.thinking = False
+            return response.choices[0].message.content
+          except Exception as e:
+            logger.warning(f"AI generation failed (attempt {i+1}/{self.retry_attempts}): {e}")
+            if i < self.retry_attempts - 1:
+              logger.warning(f"Trying again in {self.retry_delay}s...")
+              await asyncio.sleep(self.retry_delay)
+            else:
+              raise
+        except Exception as e:
+          logger.warning(f"AI generation failed (attempt {i+1}/{self.retry_attempts}): {e}")
+          if i < self.retry_attempts - 1:
+            logger.warning(f"Trying again in {self.retry_delay}s...")
+            await asyncio.sleep(self.retry_delay)
+          else:
+            raise
+
+    else:
+      if self.thinking:
+        aiconfig = types.GenerateContentConfig(
+          thinking_config=types.ThinkingConfig(thinking_level="HIGH"),
+        )
+      else:
+        aiconfig = None
+
+      for i in range(self.retry_attempts):
+        try:
+          response = await self.client.aio.models.generate_content(model=GEMINI_MODEL, contents=prompt, config=aiconfig)
+          return response.text
+        except Exception as e:
+          logger.warning(f"AI generation failed (attempt {i+1}/{self.retry_attempts}): {e}")
+          if i < self.retry_attempts - 1:
+            logger.warning(f"Trying again in {self.retry_delay}s...")
+            await asyncio.sleep(self.retry_delay)
+          else:
+            raise
+
 async def update_memories():
   while True:
     logger.info("Starting memory update...")
@@ -51,6 +120,7 @@ async def update_memories():
 
     if not chats:
       logger.info("No recent chats. Skipping memory update.")
+      await asyncio.sleep(UPDATE_INTERVAL)
       continue
 
     chatstext = ""
@@ -172,7 +242,7 @@ async def main():
   if not OWUI_TOKEN or not OWUI_URL:
     logger.error("Open WebUI credentials missing")
     return
-  elif not GEMINI_API_KEY or (not OPENAI_API_KEY and not OPENAI_URL):
+  elif not (GEMINI_API_KEY or (OPENAI_API_KEY and OPENAI_URL)):
     logger.error("AI API credentials missing")
     return
 
