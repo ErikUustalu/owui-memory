@@ -40,6 +40,7 @@ class Ai():
     self.thinking = thinking
     self.retry_attempts = retry_attempts
     self.retry_delay = retry_delay
+    self.thinking_fallback = False
     if OPENAI_URL:
       self.client = AsyncOpenAI(base_url=OPENAI_URL, api_key=OPENAI_API_KEY)
     else:
@@ -54,6 +55,9 @@ class Ai():
 
       for i in range(self.retry_attempts):
         try:
+          if self.thinking_fallback:
+            logger.warning("Using fallback mode without reasoning")
+            reasoning = None
           response = await self.client.chat.completions.create(
             model=OPENAI_MODEL,
             messages=[{"role": "user", "content": prompt}],
@@ -67,7 +71,7 @@ class Ai():
               model=OPENAI_MODEL,
               messages=[{"role": "user", "content": prompt}],
             )
-            self.thinking = False
+            self.thinking_fallback = True
             return response.choices[0].message.content
           except Exception as e:
             logger.warning(f"AI generation failed (attempt {i+1}/{self.retry_attempts}): {e}")
