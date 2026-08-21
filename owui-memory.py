@@ -161,22 +161,12 @@ async def update_memories():
 
     logger.info("Generating memory updates")
     prompt = f"{MEMORY_PROMPT}\n\nMEMORIES:\n{memoriestext}\n\nCONVERSATIONS:\n{chatstext}\n\n"
-    aiconfig = types.GenerateContentConfig(
-      thinking_config=types.ThinkingConfig(thinking_level="HIGH"),
-    )
 
-    ai = genai.Client(api_key=GEMINI_API_KEY)
+    ai = Ai()
 
-    for i in range(40):
-      try:
-        response = await ai.aio.models.generate_content(model=GEMINI_MODEL, contents=prompt, config=aiconfig)
-        break
-      except Exception as e:
-        logger.warning(f"Memory update generation failed (attempt {i+1}/40): {e}")
-        logger.warning("Trying again in 15s...")
-        await asyncio.sleep(15)
+    response = await ai.generate(prompt)
 
-    results = json.loads(response.text)
+    results = json.loads(response)
 
     for creation in results["create"]:
       await owui.memories.add_memory(AddMemoryForm(content=creation))
@@ -208,22 +198,10 @@ async def update_memories():
       memoriestext += f"\ncreated_at: {created_at}, content: {memory.content}"
 
     prompt = f"{SUMMARY_PROMPT}\n\nMEMORIES:\n{memoriestext}\n\n"
-    aiconfig = types.GenerateContentConfig(
-      thinking_config=types.ThinkingConfig(thinking_level="HIGH"),
-    )
 
-    ai = genai.Client(api_key=GEMINI_API_KEY)
+    response = await ai.generate(prompt)
 
-    for i in range(40):
-      try:
-        response = await ai.aio.models.generate_content(model=GEMINI_MODEL, contents=prompt, config=aiconfig)
-        break
-      except Exception as e:
-        logger.warning(f"Summary generation failed (attempt {i+1}/40): {e}")
-        logger.warning("Trying again in 15s...")
-        await asyncio.sleep(15)
-
-    summary = response.text
+    summary = response
     summary_file = open("data/summary.txt", "w")
     summary_file.write(summary)
     summary_file.close()
