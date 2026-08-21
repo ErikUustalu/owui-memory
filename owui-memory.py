@@ -10,6 +10,7 @@ from owui_client import OpenWebUI
 from owui_client.models.memories import AddMemoryForm
 from google import genai
 from google.genai import types
+from openai import AsyncOpenAI
 from datetime import datetime
 from aiohttp import web
 
@@ -23,6 +24,9 @@ UPDATE_INTERVAL = int(os.getenv("UPDATE_INTERVAL", 86400))
 MEMORY_PROMPT = os.getenv("MEMORY_PROMPT", DEFAULT_MEMORY_PROMPT)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemma-4-31b-it")
+OPENAI_URL = os.getenv("OPENAI_URL")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL")
 MAX_MEMORIES = int(os.getenv("MAX_MEMORIES", 200))
 SUMMARY_PROMPT = os.getenv("SUMMARY_PROMPT", DEFAULT_SUMMARY_PROMPT)
 IGNORE_CHATS_INCL = os.getenv("IGNORE_CHATS_INCL", "[TR]")
@@ -165,6 +169,13 @@ async def handle(request):
   return web.Response(text=summary)
 
 async def main():
+  if not OWUI_TOKEN or not OWUI_URL:
+    logger.error("Open WebUI credentials missing")
+    return
+  elif not GEMINI_API_KEY or (not OPENAI_API_KEY and not OPENAI_URL):
+    logger.error("AI API credentials missing")
+    return
+
   app = web.Application()
   app.router.add_get("/", handle)
   runner = web.AppRunner(app)
