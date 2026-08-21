@@ -10,4 +10,8 @@ services:
       - OWUI_TOKEN=your-open-webui-api-token
       - OWUI_URL=your-open-webui-api-url # Example http://localhost:3000/api
       - UPDATE_INTERVAL=3600 # Memory generation interval in seconds
-      - GEMINI_API_KEY=your-gemini-api-key
+      - GEMINI_API_KEY=your-gemini-api-key # Your gemini API key. Only needed if you want to use Gemini API
+      - GEMINI_MODEL=your-gemini-model # Your gemini model. Only needed if you want to use Gemini API
+      - OPENAI_URL=your-openai-api-url # Example https://api.openai.com/v1
+      - OPENAI_API_KEY=your-openai-api-key # Your OpenAI API key. Only needed if you want to use OpenAI API
+      - OPENAI_MODEL=your-openai-model # Your OpenAI model. Only needed if you want to use OpenAI API
